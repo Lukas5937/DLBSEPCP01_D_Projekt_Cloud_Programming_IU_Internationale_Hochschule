@@ -20,3 +20,27 @@ resource "aws_route53_record" "certificate_validation" {
   ttl             = 60
   allow_overwrite = true
 }
+
+resource "aws_route53_record" "website_ipv4" {
+  zone_id = aws_route53_zone.portfolio.zone_id
+  name    = var.domain_name
+  type    = "A"
+
+  alias {
+    name                   = aws_cloudfront_distribution.portfolio.domain_name
+    zone_id                = aws_cloudfront_distribution.portfolio.hosted_zone_id
+    evaluate_target_health = false
+  }
+}
+
+resource "aws_route53_record" "website_ipv6" {
+  zone_id = aws_route53_zone.portfolio.zone_id
+  name    = var.domain_name
+  type    = "AAAA"
+
+  alias {
+    name                   = aws_cloudfront_distribution.portfolio.domain_name
+    zone_id                = aws_cloudfront_distribution.portfolio.hosted_zone_id
+    evaluate_target_health = false
+  }
+}

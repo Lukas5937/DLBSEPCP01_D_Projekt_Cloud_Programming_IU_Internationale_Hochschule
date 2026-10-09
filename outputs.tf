@@ -1,3 +1,8 @@
+output "website_url" {
+  description = "Adresse der fertigen Website"
+  value       = "https://${var.domain_name}"
+}
+
 output "route53_name_servers" {
   description = "Diese vier Nameserver beim Domain-Anbieter eintragen"
   value       = aws_route53_zone.portfolio.name_servers

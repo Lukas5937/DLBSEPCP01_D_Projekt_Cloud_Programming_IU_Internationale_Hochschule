@@ -17,6 +17,8 @@ resource "aws_cloudfront_distribution" "portfolio" {
   price_class         = "PriceClass_All"
   is_ipv6_enabled     = true
 
+  aliases = [var.domain_name]
+
   origin {
     domain_name              = aws_s3_bucket.portfolio.bucket_regional_domain_name
     origin_id                = "s3-portfolio"
@@ -39,6 +41,8 @@ resource "aws_cloudfront_distribution" "portfolio" {
   }
 
   viewer_certificate {
-    cloudfront_default_certificate = true
+    acm_certificate_arn      = aws_acm_certificate_validation.portfolio.certificate_arn
+    ssl_support_method       = "sni-only"
+    minimum_protocol_version = "TLSv1.2_2021"
   }
 }
