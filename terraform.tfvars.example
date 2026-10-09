@@ -1,0 +1,8 @@
+# Kopiere diese Datei zu terraform.tfvars und trage eigene Werte ein.
+# terraform.tfvars selbst gehoert nicht ins Repository.
+
+# Weltweit eindeutiger Bucket-Name
+bucket_name = "dein-eindeutiger-bucket-name"
+
+# Optional, Standard ist eu-central-1
+# aws_region = "eu-central-1"
