@@ -41,3 +41,11 @@ resource "aws_s3_object" "index" {
   content_type = "text/html"
   etag         = filemd5("${path.module}/website/index.html")
 }
+
+resource "aws_s3_object" "error" {
+  bucket       = aws_s3_bucket.portfolio.id
+  key          = "error.html"
+  source       = "${path.module}/website/error.html"
+  content_type = "text/html"
+  etag         = filemd5("${path.module}/website/error.html")
+}
