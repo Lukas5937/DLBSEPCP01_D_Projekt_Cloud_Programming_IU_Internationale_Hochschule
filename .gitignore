@@ -1,0 +1,28 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+
+# Variablendateien koennen projektspezifische Werte enthalten, die Beispieldatei nicht
+*.tfvars
+*.tfvars.json
+!*.tfvars.example
+
+# Lokale Overrides
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# CLI-Konfiguration mit moeglichen Zugangsdaten
+.terraformrc
+terraform.rc
+
+# macOS
+.DS_Store
+
+# Hinweis: .terraform.lock.hcl wird bewusst nicht ignoriert. Die Datei haelt die
+# Provider-Versionen fest und gehoert ins Repository, damit ein Dritter denselben
+# Stand bekommt.
