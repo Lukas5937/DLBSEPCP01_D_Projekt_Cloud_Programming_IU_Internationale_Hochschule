@@ -4,5 +4,8 @@
 # Weltweit eindeutiger Bucket-Name
 bucket_name = "dein-eindeutiger-bucket-name"
 
+# Eigene Domain ohne Protokoll und ohne abschliessenden Punkt
+domain_name = "beispiel.de"
+
 # Optional, Standard ist eu-central-1
 # aws_region = "eu-central-1"
