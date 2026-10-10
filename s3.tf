@@ -1,10 +1,10 @@
-resource "aws_s3_bucket" "portfolio" {
+resource "aws_s3_bucket" "website" {
   bucket        = var.bucket_name
   force_destroy = true
 }
 
-resource "aws_s3_bucket_public_access_block" "portfolio" {
-  bucket = aws_s3_bucket.portfolio.id
+resource "aws_s3_bucket_public_access_block" "website" {
+  bucket = aws_s3_bucket.website.id
 
   block_public_acls       = true
   block_public_policy     = true
@@ -12,8 +12,8 @@ resource "aws_s3_bucket_public_access_block" "portfolio" {
   restrict_public_buckets = true
 }
 
-resource "aws_s3_bucket_server_side_encryption_configuration" "portfolio" {
-  bucket = aws_s3_bucket.portfolio.id
+resource "aws_s3_bucket_server_side_encryption_configuration" "website" {
+  bucket = aws_s3_bucket.website.id
 
   rule {
     apply_server_side_encryption_by_default {
@@ -22,8 +22,8 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "portfolio" {
   }
 }
 
-resource "aws_s3_bucket_policy" "portfolio" {
-  bucket = aws_s3_bucket.portfolio.id
+resource "aws_s3_bucket_policy" "website" {
+  bucket = aws_s3_bucket.website.id
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -33,10 +33,10 @@ resource "aws_s3_bucket_policy" "portfolio" {
         Effect    = "Allow"
         Principal = { Service = "cloudfront.amazonaws.com" }
         Action    = "s3:GetObject"
-        Resource  = "${aws_s3_bucket.portfolio.arn}/*"
+        Resource  = "${aws_s3_bucket.website.arn}/*"
         Condition = {
           StringEquals = {
-            "AWS:SourceArn" = aws_cloudfront_distribution.portfolio.arn
+            "AWS:SourceArn" = aws_cloudfront_distribution.website.arn
           }
         }
       },
@@ -46,8 +46,8 @@ resource "aws_s3_bucket_policy" "portfolio" {
         Principal = "*"
         Action    = "s3:*"
         Resource = [
-          aws_s3_bucket.portfolio.arn,
-          "${aws_s3_bucket.portfolio.arn}/*"
+          aws_s3_bucket.website.arn,
+          "${aws_s3_bucket.website.arn}/*"
         ]
         Condition = {
           Bool = {
@@ -60,7 +60,7 @@ resource "aws_s3_bucket_policy" "portfolio" {
 }
 
 resource "aws_s3_object" "index" {
-  bucket       = aws_s3_bucket.portfolio.id
+  bucket       = aws_s3_bucket.website.id
   key          = "index.html"
   source       = "${path.module}/website/index.html"
   content_type = "text/html"
@@ -68,7 +68,7 @@ resource "aws_s3_object" "index" {
 }
 
 resource "aws_s3_object" "error" {
-  bucket       = aws_s3_bucket.portfolio.id
+  bucket       = aws_s3_bucket.website.id
   key          = "error.html"
   source       = "${path.module}/website/error.html"
   content_type = "text/html"

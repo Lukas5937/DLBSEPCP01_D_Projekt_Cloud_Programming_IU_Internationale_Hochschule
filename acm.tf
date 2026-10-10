@@ -1,4 +1,4 @@
-resource "aws_acm_certificate" "portfolio" {
+resource "aws_acm_certificate" "website" {
   provider          = aws.us_east_1
   domain_name       = var.domain_name
   validation_method = "DNS"
@@ -8,8 +8,8 @@ resource "aws_acm_certificate" "portfolio" {
   }
 }
 
-resource "aws_acm_certificate_validation" "portfolio" {
+resource "aws_acm_certificate_validation" "website" {
   provider                = aws.us_east_1
-  certificate_arn         = aws_acm_certificate.portfolio.arn
+  certificate_arn         = aws_acm_certificate.website.arn
   validation_record_fqdns = [for record in aws_route53_record.certificate_validation : record.fqdn]
 }

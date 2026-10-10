@@ -2,17 +2,17 @@ data "aws_cloudfront_cache_policy" "caching_optimized" {
   name = "Managed-CachingOptimized"
 }
 
-resource "aws_cloudfront_origin_access_control" "portfolio" {
-  name                              = "portfolio-oac"
-  description                       = "Zugriff von CloudFront auf den Portfolio-Bucket"
+resource "aws_cloudfront_origin_access_control" "website" {
+  name                              = "website-oac"
+  description                       = "Zugriff von CloudFront auf den Website-Bucket"
   origin_access_control_origin_type = "s3"
   signing_behavior                  = "always"
   signing_protocol                  = "sigv4"
 }
 
-resource "aws_cloudfront_distribution" "portfolio" {
+resource "aws_cloudfront_distribution" "website" {
   enabled             = true
-  comment             = "Cloud Programming Portfolio"
+  comment             = "Unternehmenswebsite"
   default_root_object = "index.html"
   price_class         = "PriceClass_All"
   is_ipv6_enabled     = true
@@ -20,13 +20,13 @@ resource "aws_cloudfront_distribution" "portfolio" {
   aliases = [var.domain_name]
 
   origin {
-    domain_name              = aws_s3_bucket.portfolio.bucket_regional_domain_name
-    origin_id                = "s3-portfolio"
-    origin_access_control_id = aws_cloudfront_origin_access_control.portfolio.id
+    domain_name              = aws_s3_bucket.website.bucket_regional_domain_name
+    origin_id                = "s3-website"
+    origin_access_control_id = aws_cloudfront_origin_access_control.website.id
   }
 
   default_cache_behavior {
-    target_origin_id       = "s3-portfolio"
+    target_origin_id       = "s3-website"
     viewer_protocol_policy = "redirect-to-https"
     allowed_methods        = ["GET", "HEAD"]
     cached_methods         = ["GET", "HEAD"]
@@ -55,7 +55,7 @@ resource "aws_cloudfront_distribution" "portfolio" {
   }
 
   viewer_certificate {
-    acm_certificate_arn      = aws_acm_certificate_validation.portfolio.certificate_arn
+    acm_certificate_arn      = aws_acm_certificate_validation.website.certificate_arn
     ssl_support_method       = "sni-only"
     minimum_protocol_version = "TLSv1.2_2021"
   }

@@ -1,11 +1,11 @@
-resource "aws_route53_zone" "portfolio" {
+resource "aws_route53_zone" "website" {
   name    = var.domain_name
   comment = "Hosted Zone der Unternehmenswebsite"
 }
 
 resource "aws_route53_record" "certificate_validation" {
   for_each = {
-    for option in aws_acm_certificate.portfolio.domain_validation_options :
+    for option in aws_acm_certificate.website.domain_validation_options :
     option.domain_name => {
       name   = option.resource_record_name
       type   = option.resource_record_type
@@ -13,7 +13,7 @@ resource "aws_route53_record" "certificate_validation" {
     }
   }
 
-  zone_id         = aws_route53_zone.portfolio.zone_id
+  zone_id         = aws_route53_zone.website.zone_id
   name            = each.value.name
   type            = each.value.type
   records         = [each.value.record]
@@ -22,25 +22,25 @@ resource "aws_route53_record" "certificate_validation" {
 }
 
 resource "aws_route53_record" "website_ipv4" {
-  zone_id = aws_route53_zone.portfolio.zone_id
+  zone_id = aws_route53_zone.website.zone_id
   name    = var.domain_name
   type    = "A"
 
   alias {
-    name                   = aws_cloudfront_distribution.portfolio.domain_name
-    zone_id                = aws_cloudfront_distribution.portfolio.hosted_zone_id
+    name                   = aws_cloudfront_distribution.website.domain_name
+    zone_id                = aws_cloudfront_distribution.website.hosted_zone_id
     evaluate_target_health = false
   }
 }
 
 resource "aws_route53_record" "website_ipv6" {
-  zone_id = aws_route53_zone.portfolio.zone_id
+  zone_id = aws_route53_zone.website.zone_id
   name    = var.domain_name
   type    = "AAAA"
 
   alias {
-    name                   = aws_cloudfront_distribution.portfolio.domain_name
-    zone_id                = aws_cloudfront_distribution.portfolio.hosted_zone_id
+    name                   = aws_cloudfront_distribution.website.domain_name
+    zone_id                = aws_cloudfront_distribution.website.hosted_zone_id
     evaluate_target_health = false
   }
 }
