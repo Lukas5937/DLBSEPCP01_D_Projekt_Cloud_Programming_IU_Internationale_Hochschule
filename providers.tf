@@ -20,6 +20,8 @@ provider "aws" {
   }
 }
 
+# Zweiter Provider nur fuer ACM. CloudFront akzeptiert Zertifikate
+# ausschliesslich aus us-east-1, alles andere liegt in eu-central-1.
 provider "aws" {
   alias  = "us_east_1"
   region = "us-east-1"

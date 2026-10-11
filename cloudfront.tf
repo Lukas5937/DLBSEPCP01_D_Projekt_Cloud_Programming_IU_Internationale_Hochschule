@@ -2,6 +2,8 @@ data "aws_cloudfront_cache_policy" "caching_optimized" {
   name = "Managed-CachingOptimized"
 }
 
+# Origin Access Control signiert die Anfragen von CloudFront an S3.
+# Der Bucket bleibt dadurch privat, kein oeffentlicher Endpunkt noetig.
 resource "aws_cloudfront_origin_access_control" "website" {
   name                              = "website-oac"
   description                       = "Zugriff von CloudFront auf den Website-Bucket"
@@ -15,7 +17,7 @@ resource "aws_cloudfront_distribution" "website" {
   comment             = "Unternehmenswebsite"
   default_root_object = "index.html"
   price_class         = "PriceClass_All"
-  is_ipv6_enabled     = true
+  is_ipv6_enabled     = true # Default ist false, sonst laeuft der AAAA-Record ins Leere
 
   aliases = [var.domain_name]
 
@@ -34,6 +36,9 @@ resource "aws_cloudfront_distribution" "website" {
     compress               = true
   }
 
+  # Die Bucket Policy erlaubt nur GetObject, kein ListBucket. S3 antwortet
+  # auf einen unbekannten Pfad deshalb mit 403 statt 404. Beides faengt
+  # CloudFront ab und liefert die eigene Fehlerseite aus.
   custom_error_response {
     error_code            = 403
     response_code         = 404
@@ -54,6 +59,9 @@ resource "aws_cloudfront_distribution" "website" {
     }
   }
 
+  # Mit dem mitgelieferten CloudFront-Zertifikat waere die Security Policy
+  # fest auf TLSv1 und minimum_protocol_version wuerde ignoriert. Nur mit
+  # eigenem Zertifikat laesst sich TLS 1.2 erzwingen.
   viewer_certificate {
     acm_certificate_arn      = aws_acm_certificate_validation.website.certificate_arn
     ssl_support_method       = "sni-only"

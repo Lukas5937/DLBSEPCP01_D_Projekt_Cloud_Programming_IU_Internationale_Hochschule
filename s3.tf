@@ -1,8 +1,13 @@
+# Buckets sind global eindeutig, der Name kommt deshalb aus einer Variablen.
+# force_destroy, damit terraform destroy nicht an verbliebenen Objekten
+# haengenbleibt. Hier unkritisch, im Bucket liegt nur, was aus dem Repo kommt.
 resource "aws_s3_bucket" "website" {
   bucket        = var.bucket_name
   force_destroy = true
 }
 
+# Riegel auf Bucket-Ebene. Greift auch dann, wenn eine Policy
+# versehentlich oeffentlichen Zugriff erlauben wuerde.
 resource "aws_s3_bucket_public_access_block" "website" {
   bucket = aws_s3_bucket.website.id
 
@@ -12,6 +17,8 @@ resource "aws_s3_bucket_public_access_block" "website" {
   restrict_public_buckets = true
 }
 
+# SSE-S3 ist seit 2023 ohnehin Default. Steht hier explizit, damit die
+# Verschluesselung im Code nachweisbar ist.
 resource "aws_s3_bucket_server_side_encryption_configuration" "website" {
   bucket = aws_s3_bucket.website.id
 
@@ -34,12 +41,17 @@ resource "aws_s3_bucket_policy" "website" {
         Principal = { Service = "cloudfront.amazonaws.com" }
         Action    = "s3:GetObject"
         Resource  = "${aws_s3_bucket.website.arn}/*"
+        # SourceArn bindet die Freigabe an genau diese Distribution.
+        # Ohne die Bedingung koennte eine fremde Distribution den Bucket
+        # als Origin eintragen (Confused Deputy).
         Condition = {
           StringEquals = {
             "AWS:SourceArn" = aws_cloudfront_distribution.website.arn
           }
         }
       },
+      # Greift im Normalbetrieb nie, CloudFront spricht ohnehin HTTPS mit S3.
+      # Deckt aber jeden kuenftigen Zugriffsweg mit ab.
       {
         Sid       = "DenyUnencryptedTransport"
         Effect    = "Deny"
@@ -59,6 +71,10 @@ resource "aws_s3_bucket_policy" "website" {
   })
 }
 
+# content_type muss gesetzt werden, sonst liefert S3 octet-stream und der
+# Browser laedt die Datei herunter statt sie anzuzeigen.
+# etag haelt die Pruefsumme im State, erst dadurch bemerkt Terraform
+# eine geaenderte Datei.
 resource "aws_s3_object" "index" {
   bucket       = aws_s3_bucket.website.id
   key          = "index.html"

@@ -1,8 +1,12 @@
+# Die Zone legt Terraform an, die Nameserver muessen danach von Hand beim
+# Domain-Anbieter eingetragen werden. Der Anbieter ist kein AWS-Dienst,
+# an dieser Stelle endet Infrastructure as Code.
 resource "aws_route53_zone" "website" {
   name    = var.domain_name
   comment = "Hosted Zone der Unternehmenswebsite"
 }
 
+# ACM gibt pro Domain einen CNAME vor, ueber den der Besitz nachgewiesen wird.
 resource "aws_route53_record" "certificate_validation" {
   for_each = {
     for option in aws_acm_certificate.website.domain_validation_options :
@@ -21,6 +25,8 @@ resource "aws_route53_record" "certificate_validation" {
   allow_overwrite = true
 }
 
+# Alias statt CNAME, weil ein CNAME auf der Apex-Domain nicht zulaessig ist.
+# Alias-Abfragen sind bei Route 53 ausserdem kostenfrei.
 resource "aws_route53_record" "website_ipv4" {
   zone_id = aws_route53_zone.website.zone_id
   name    = var.domain_name
